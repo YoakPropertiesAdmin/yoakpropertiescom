@@ -28,10 +28,7 @@
     "Three or six reads best - the desktop grid is three columns, so four or",
     "five leaves an orphan on the last row. Nine is the most it handles cleanly.",
     "",
-    "SIX BLANK SLOTS ARE BELOW. Fill author, date and text on each and rebuild.",
-    "A slot left entirely blank is ignored, so a partial fill-in still builds -",
-    "but a slot with SOME content and not all of it fails the build on purpose.",
-    "",
+                "",
     "profileUrl  full Google Maps URL for the profile (google.com/maps/place/...).",
     "            Avoid share.google short links - Google retired goo.gl in 2025.",
     "reviewUrl   the 'Ask for reviews' link from Google Business Profile,",
@@ -43,12 +40,48 @@
   "reviewUrl": "",
   "rating": null,
   "total": 68,
-  "reviews": [
-    { "author": "", "rating": 5, "date": "", "text": "" },
-    { "author": "", "rating": 5, "date": "", "text": "" },
-    { "author": "", "rating": 5, "date": "", "text": "" },
-    { "author": "", "rating": 5, "date": "", "text": "" },
-    { "author": "", "rating": 5, "date": "", "text": "" },
-    { "author": "", "rating": 5, "date": "", "text": "", "response": "" }
+  "reviews":
+  [
+      {
+          "author": "Marquette Barnes",
+          "rating": 5,
+          "date": "2026-07",
+          "text": "Daniel is the best!! He was very patient , considerate and patient in helping my daughter and I find the best home for our family!! I am new to the area and Daniel stepped in to assist with no hesitation!! If you want the best ask for Daniel!!!",
+          "response": "He truly rocks!"
+      },
+      {
+          "author": "Mac Nelson",
+          "rating": 5,
+          "date": "2026-07",
+          "text": "Matt (repairs) has been so great to work with. He's making my rental maintenance smooth and easy, taking care of my rentals like they were his own. And on every issue fast. Making me feel like he doesn't have dozens of other owners to answer to. Matt is excellent to work with.",
+          "response": "Thank you Mac for trusting in us!"
+      },
+      {
+          "author": "Eve Renee",
+          "rating": 5,
+          "date": "2026-06",
+          "text": "I had such an amazing experience with Yoak Properties! Especially Aaron, he is awesome! He did a great job with every step of the process of me moving into my new home! From the initial day of meeting him and touring the home (I knew it was gonna be my new place right away!), to the getting the keys and everything in between. Thank you Aaron!",
+          "response": "Thanks for believing in Aaron and the team!"
+      },
+      {
+          "author": "Emily AdC",
+          "rating": 5,
+          "date": "2026-04",
+          "text": "I recently moved into a newly renovated property with Yoak. Harrison was great with communication and leasing amendments at the start. Within the last few days, I ran over a nail in my gravel driveway from them doing renovations. After explaining what happened, showing them photos of the nails, and the receipt for the repair for the tire, without question, they credited my account with the amount that was used to fix my tire. Not only happy with this quick problem solving but it was fair too. Thank you Amanda, Matt, and Harrison."
+      },
+      {
+          "author": "lil Bread",
+          "rating": 5,
+          "date": "2026-06",
+          "text": "Moved in one month ago. Aaron helped us get the keys and was very quick to answer our questions anytime we reached out. He was very positive and knowledgeable. This was the easiest time I've ever had getting into a new house.",
+          "response": "Glad we were able to make this a seamless process for you and the family!"
+      },
+      {
+          "author": "David Richeson-Orr",
+          "rating": 5,
+          "date": "2026-07",
+          "text": "Tommy from maintenance came and fixed the sealing for my doors so critters would stay out and fixed my sink because I happened to mention a leaky seal. Super nice guy and hope to see him again in the future for any other repairs.",
+          "response": "Glad we could get it handled for u!"
+      }
   ]
 }
