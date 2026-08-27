@@ -540,25 +540,17 @@ View All Listings <span aria-hidden="true" class="material-symbols-outlined text
 
 
 def home_reviews():
-    """Replaces three invented tenant testimonials with a link to the real thing."""
-    return f'''<section class="px-margin-mobile md:px-gutter py-section-gap-mobile md:py-section-gap-desktop bg-surface-bright">
-<div class="max-w-container-max mx-auto">
-<div class="bg-soft-gold rounded-xl p-8 md:p-12 border border-outline-variant/10 relative overflow-hidden">
-<div class="absolute top-0 right-0 -mr-12 -mt-12 w-64 h-64 bg-heritage-gold/10 rounded-full blur-3xl pointer-events-none"></div>
-<div class="relative z-10 flex flex-col md:flex-row md:items-center gap-8 justify-between">
-<div class="max-w-2xl">
-<span aria-hidden="true" class="material-symbols-outlined text-heritage-gold text-4xl">format_quote</span>
-<h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-deep-navy mt-2 mb-3">What Our Tenants Say</h2>
-<p class="font-body-lg text-body-lg text-on-surface-variant">Our residents leave reviews on our Google Business profile. Read what they have to say, or add your own if you rent with us.</p>
-</div>
-<div class="shrink-0 flex flex-col sm:flex-row md:flex-col gap-3">
-<a class="bg-deep-navy text-surface-off-white px-8 py-3 rounded font-label-bold text-label-bold hover:bg-primary-container transition-colors inline-flex items-center justify-center gap-2" href="{REVIEWS_URL}" rel="noopener" target="_blank">Read our reviews <span aria-hidden="true" class="material-symbols-outlined text-base">arrow_outward</span></a>
-<a class="bg-transparent border border-heritage-gold text-deep-navy px-8 py-3 rounded font-label-bold text-label-bold hover:bg-heritage-gold/10 transition-colors inline-flex items-center justify-center gap-2" href="about.html#contact">Contact our team</a>
-</div>
-</div>
-</div>
-</div>
-</section>'''
+    """Real Google reviews, from data/reviews.json.
+
+    Replaces the three invented testimonials the mockup shipped. Falls back to a
+    link to the Google profile when the file holds no usable reviews, so the page
+    never carries filler.
+    """
+    import reviews
+    html, n = reviews.build(CFG)
+    global REVIEW_COUNT
+    REVIEW_COUNT = n
+    return html
 
 
 def home_open_houses():
@@ -664,7 +656,10 @@ def build_about():
 # ==========================================================================
 # PROPERTIES / FAQ — delegated to build/properties.py and build/faq.py
 # ==========================================================================
+REVIEW_COUNT = 0
+
 CFG = dict(OUT=OUT, ZILLOW_ADDR=ZILLOW_ADDR, APPLY_URL=APPLY_URL, APP_FEE=APP_FEE,
+           REVIEWS_URL=REVIEWS_URL, MAPS_URL=MAPS_URL,
            BUILD_DATE_TEXT=BUILD_DATE_TEXT, PHONE_HREF=PHONE_HREF,
            PHONE_TEXT=PHONE_TEXT, EMAIL=EMAIL, PORTAL_URL=PORTAL_URL)
 
@@ -841,6 +836,12 @@ def main():
         with open(os.path.join(OUT, outname), 'w', encoding='utf-8') as f:
             f.write(page)
         print(f'  wrote {outname:18s} {len(page)//1024}KB')
+
+    if REVIEW_COUNT:
+        print(f'  -- {REVIEW_COUNT} review(s) rendered on the home page')
+    else:
+        print('  -- no usable reviews in data/reviews.json, so the home page links'
+              ' to Google instead. Add entries to show the widget.')
 
     if not PORTAL_URL:
         print('  -- note: PORTAL_URL is empty, so the Tenant Portal button is omitted'
