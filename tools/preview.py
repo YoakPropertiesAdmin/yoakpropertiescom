@@ -24,8 +24,9 @@ import mimetypes
 import os
 import re
 
-SITE = 'repo'
-OUT = 'preview/yoak-preview.html'
+HERE = os.path.dirname(os.path.abspath(__file__))
+SITE = os.environ.get('YOAK_OUT') or os.path.dirname(HERE)
+OUT = os.environ.get('YOAK_PREVIEW') or os.path.join(SITE, 'preview', 'yoak-preview.html')
 
 PAGES = [
     ('index.html', 'Home'),
@@ -49,7 +50,7 @@ def data_uri(path):
 
 
 def main():
-    os.makedirs('preview', exist_ok=True)
+    os.makedirs(os.path.dirname(OUT), exist_ok=True)
 
     # ---- assets -----------------------------------------------------------
     assets = {}

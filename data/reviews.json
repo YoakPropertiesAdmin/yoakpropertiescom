@@ -28,6 +28,10 @@
     "Three or six reads best - the desktop grid is three columns, so four or",
     "five leaves an orphan on the last row. Nine is the most it handles cleanly.",
     "",
+    "SIX BLANK SLOTS ARE BELOW. Fill author, date and text on each and rebuild.",
+    "A slot left entirely blank is ignored, so a partial fill-in still builds -",
+    "but a slot with SOME content and not all of it fails the build on purpose.",
+    "",
     "profileUrl  full Google Maps URL for the profile (google.com/maps/place/...).",
     "            Avoid share.google short links - Google retired goo.gl in 2025.",
     "reviewUrl   the 'Ask for reviews' link from Google Business Profile,",
@@ -39,5 +43,12 @@
   "reviewUrl": "",
   "rating": null,
   "total": 68,
-  "reviews": []
+  "reviews": [
+    { "author": "", "rating": 5, "date": "", "text": "" },
+    { "author": "", "rating": 5, "date": "", "text": "" },
+    { "author": "", "rating": 5, "date": "", "text": "" },
+    { "author": "", "rating": 5, "date": "", "text": "" },
+    { "author": "", "rating": 5, "date": "", "text": "" },
+    { "author": "", "rating": 5, "date": "", "text": "", "response": "" }
+  ]
 }

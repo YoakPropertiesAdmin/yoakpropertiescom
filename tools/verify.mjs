@@ -3,7 +3,9 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 
-const ROOT = path.resolve('site');
+const ROOT = process.env.YOAK_OUT
+  ? path.resolve(process.env.YOAK_OUT)
+  : path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const MIME = {'.html':'text/html','.css':'text/css','.js':'text/javascript','.png':'image/png','.jpg':'image/jpeg','.xml':'application/xml','.txt':'text/plain'};
 const server = http.createServer((req,res)=>{
   let p = decodeURIComponent(req.url.split('?')[0]);
@@ -18,9 +20,25 @@ const server = http.createServer((req,res)=>{
 });
 await new Promise(r=>server.listen(8899,r));
 
+let problems = [];
+
+// The stylesheet is generated, and a bad `content` glob in tailwind.config.js
+// yields a valid-looking CSS file containing no utility classes at all - the
+// site then renders completely unstyled with no error anywhere in the build.
+// This happened once. Check the output actually has utilities in it.
+{
+  const cssPath = path.join(ROOT, 'assets', 'css', 'site.css');
+  const css = fs.readFileSync(cssPath, 'utf8');
+  const bytes = Buffer.byteLength(css);
+  const markers = ['deep-navy', 'heritage-gold', 'container-max', 'margin-mobile'];
+  const missing = markers.filter(m => !css.includes(m));
+  if (bytes < 20000) problems.push(`site.css is only ${bytes} bytes - Tailwind probably scanned no files`);
+  if (missing.length) problems.push(`site.css is missing utilities ${JSON.stringify(missing)} - check tailwind.config.js content globs`);
+  console.log(`stylesheet: ${(bytes/1024).toFixed(0)} KB, utilities present: ${markers.length - missing.length}/${markers.length}`);
+}
+
 const PAGES=['index.html','about.html','properties.html','faq.html','privacy.html','terms.html','404.html'];
 const browser = await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
-let problems = [];
 
 for (const view of [{name:'desktop',width:1440,height:1000},{name:'mobile',width:390,height:844}]) {
   const ctx = await browser.newContext({viewport:{width:view.width,height:view.height}, deviceScaleFactor:1});

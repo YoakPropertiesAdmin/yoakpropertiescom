@@ -3,7 +3,10 @@
 import { chromium } from 'playwright';
 import path from 'path';
 
-const FILE = 'file://' + path.resolve('preview/yoak-preview.html');
+const ROOT = process.env.YOAK_OUT
+  ? path.resolve(process.env.YOAK_OUT)
+  : path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const FILE = 'file://' + path.join(ROOT, 'preview', 'yoak-preview.html');
 const b = await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
 const ctx = await b.newContext({viewport:{width:1500,height:1000}});
 const pg = await ctx.newPage();

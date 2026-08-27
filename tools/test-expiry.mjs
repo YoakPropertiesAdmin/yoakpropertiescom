@@ -3,7 +3,9 @@
    the page keeps showing a date that is weeks old. */
 import { chromium } from 'playwright';
 import http from 'http'; import fs from 'fs'; import path from 'path';
-const ROOT=path.resolve('site');
+const ROOT = process.env.YOAK_OUT
+  ? path.resolve(process.env.YOAK_OUT)
+  : path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const MIME={'.html':'text/html','.css':'text/css','.js':'text/javascript','.png':'image/png','.jpg':'image/jpeg','.woff2':'font/woff2','.json':'application/json'};
 const srv=http.createServer((q,r)=>{let p=q.url.split('?')[0]; if(p.endsWith('/'))p+='index.html';
  const f=path.join(ROOT,p); if(!fs.existsSync(f)){r.writeHead(404);return r.end('x');}

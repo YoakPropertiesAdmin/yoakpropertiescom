@@ -28,8 +28,13 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-SRC = 'src'
-OUT = 'site'
+# Paths are derived from this script's own location so the documented command
+# works from the repository root ("python3 tools/transform.py"): sources in
+# tools/src, output alongside them in the repo root. The two env vars let a
+# different layout drive the same code, which is how this is developed.
+HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.environ.get('YOAK_SRC') or os.path.join(HERE, 'src')
+OUT = os.environ.get('YOAK_OUT') or os.path.dirname(HERE)
 
 # --------------------------------------------------------------------------
 # Single source of truth for every fact that appears on more than one page.
@@ -332,7 +337,7 @@ SCREEN_MAP = {
 }
 
 
-ICON_CP = json.load(open(os.path.join('build', 'icons.json'), encoding='utf-8'))
+ICON_CP = json.load(open(os.path.join(HERE, 'icons.json'), encoding='utf-8'))
 
 
 def icons_to_entities(html):

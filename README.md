@@ -93,17 +93,13 @@ any mapping would repeat photos across different addresses and imply each was of
 that house. The real interiors appear once, in a gallery labelled as
 representative. Add per-address photos and the card layout can gain an image.
 
-### 6. Entity name differs between the branding and the payee line — left as-is
+### 6. Entity name is inconsistent
 
-The site brand is "Yoak Properties & Construction **Co.**", which matches the
-Ohio registration ("YOAK PROPERTIES AND CONSTRUCTION CO."). The FAQ tells
-applicants to make payments out to "Yoak Properties and Construction **LLC**",
-taken verbatim from Yoak's own FAQ document.
-
-**This is intentional and needs no action from IT.** A payee line has to match
-whatever the bank expects, and that is an ownership and finance call, not a
-website one. Noted here only so nobody "fixes" the inconsistency later without
-asking Steve or Kipp first.
+The site says "Yoak Properties & Construction **Co.**" The FAQ tells applicants
+to make cashier's cheques payable to "Yoak Properties and Construction **LLC**".
+The Ohio registration is "YOAK PROPERTIES AND CONSTRUCTION CO." The FAQ page
+keeps the "LLC" wording verbatim, because that is what a cheque has to say — but
+somebody should confirm which entity is correct and make the two agree.
 
 ### 7. Google reviews link
 
@@ -119,7 +115,7 @@ would open the "write a review" dialog directly.
    - Branch: `main`, folder: `/ (root)`
 2. Wait for the green check. Because `CNAME` is present, Pages will immediately
    claim `www.yoakproperties.com` — so until DNS is switched, the
-   `YoakPropertiesAdmin.github.io/yoakproperties` URL will redirect to a domain
+   `eganfamily12-stack.github.io/yoakproperties` URL will redirect to a domain
    that still points at Wix.
    **To preview before cutting over, delete `CNAME`, push, look at the
    `github.io` URL, then add `CNAME` back.** Every internal link is relative, so
@@ -134,7 +130,7 @@ When ready, at the registrar:
 
 | Record | Name | Value |
 |---|---|---|
-| CNAME | `www` | `YoakPropertiesAdmin.github.io` |
+| CNAME | `www` | `eganfamily12-stack.github.io` |
 | A | `@` | `185.199.108.153` |
 | A | `@` | `185.199.109.153` |
 | A | `@` | `185.199.110.153` |
@@ -189,12 +185,18 @@ Change one, rebuild, and it updates on all six pages at once.
 ### Rebuilding
 
 ```bash
-cd tools && npm install && cd ..
-python3 tools/transform.py     # -> the seven page files
-npm --prefix tools run css     # recompile assets/css/site.css
-node tools/verify.mjs          # render every page and check it
-node tools/test-expiry.mjs     # fast-forward the clock, check dates expire
+cd tools && npm install && cd ..      # once
+python3 tools/transform.py            # -> the seven page files
+npm --prefix tools run css            # recompile assets/css/site.css
+npm --prefix tools run test           # render every page, check it, check dates expire
+npm --prefix tools run preview        # optional: build the single-file preview
 ```
+
+All paths resolve from `tools/`, so run these from the repository root. The
+Tailwind `content` globs resolve from the config file for the same reason: a
+relative glob that misses the pages produces a stylesheet with **no utility
+classes at all**, and the site renders completely unstyled with no error
+anywhere in the build. `tools/verify.mjs` now fails if that happens.
 
 `transform.py` fails loudly if a page still contains a placeholder link, a dead
 image URL, the wrong zip code, an icon name left as text, **any mention of a
@@ -215,6 +217,7 @@ rendering visibly. It also opens and closes the mobile menu. Screenshots land in
 index.html  properties.html  faq.html      the deployed pages
 about.html  privacy.html  terms.html  404.html
 data/listings.json                           inventory: the one file to edit
+data/reviews.json                            the six featured Google reviews
 assets/css/site.css                          compiled Tailwind, minified
 assets/js/site.js                            mobile menu, open-house expiry, TOC highlight
 assets/fonts/                                7 text faces + a 3 KB icon subset
@@ -335,4 +338,4 @@ right in a screenshot but were not a working website. For the record:
 | Office | 1361 Wooster Road W, Suite A, Barberton, OH 44203 |
 | Phone | 330-794-7156 |
 | Email | info@yoakproperties.com |
-| Resident portal | AppFolio &mdash; URL still needed, see open item 1. The old Buildium portal is dead and must not be linked. |
+| Resident portal | https://yoakproperties.managebuilding.com/Resident/public/home |

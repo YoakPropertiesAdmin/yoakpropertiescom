@@ -5,9 +5,23 @@
 const MONT = ['Montserrat', 'system-ui', '-apple-system', 'Segoe UI', 'Arial', 'sans-serif'];
 const INTER = ['Inter', 'system-ui', '-apple-system', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'];
 
+// Where to scan for class names. This must be resolved from the config's own
+// location, not the working directory: a relative glob that misses the pages
+// produces a stylesheet with no utility classes in it at all, and the site
+// renders completely unstyled with no error anywhere in the build.
+const path = require('path');
+const ROOT = process.env.YOAK_OUT
+  ? path.resolve(process.env.YOAK_OUT)
+  : path.resolve(__dirname, '..');
+
 module.exports = {
   darkMode: 'class',
-  content: ['./site/**/*.html'],
+  content: [
+    // the seven built pages, which all sit at the site root
+    path.join(ROOT, '*.html'),
+    // site.js adds and removes classes at runtime, so they must be kept too
+    path.join(ROOT, 'assets/js/*.js'),
+  ],
   theme: {
     extend: {
       colors: {
