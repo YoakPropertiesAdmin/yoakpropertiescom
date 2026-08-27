@@ -1,0 +1,35 @@
+# Netlify configuration for the Yoak Properties website.
+#
+# The repository already contains the built site, so there is no build step and
+# none is configured here: Netlify publishes the repository root exactly as
+# committed. For a first deploy that is the robust choice, because there is no
+# build that can fail.
+#
+# To have Netlify run the build instead - so that editing data/listings.json and
+# pushing is the whole job, with no local Python or Tailwind - uncomment the
+# command below. Netlify's build image ships Python 3 and Node. Test it on a
+# deploy preview before pointing the domain at it.
+
+[build]
+  publish = "."
+  # command = "npm --prefix tools install && python3 tools/transform.py && npx tailwindcss -c tools/tailwind.config.js -i tools/input.css -o assets/css/site.css --minify"
+
+# Pages must revalidate so a listings update is visible immediately.
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Fonts, images, CSS and JS change only on deploy, so they can be cached hard.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "SAMEORIGIN"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Permissions-Policy = "geolocation=(), camera=(), microphone=()"

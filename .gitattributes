@@ -1,0 +1,19 @@
+# Keep line endings identical everywhere.
+#
+# This repository is edited from Windows and built on Linux. Without this,
+# PowerShell writing CRLF makes a rebuild report every file as modified purely
+# because of line-ending churn - which already happened once.
+* text=auto eol=lf
+
+# Never touch binaries.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.pdf   binary
+*.gz    binary
+*.zip   binary

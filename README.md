@@ -119,7 +119,7 @@ would open the "write a review" dialog directly.
    - Branch: `main`, folder: `/ (root)`
 2. Wait for the green check. Because `CNAME` is present, Pages will immediately
    claim `www.yoakproperties.com` — so until DNS is switched, the
-   `eganfamily12-stack.github.io/yoakproperties` URL will redirect to a domain
+   `YoakPropertiesAdmin.github.io/yoakproperties` URL will redirect to a domain
    that still points at Wix.
    **To preview before cutting over, delete `CNAME`, push, look at the
    `github.io` URL, then add `CNAME` back.** Every internal link is relative, so
@@ -134,7 +134,7 @@ When ready, at the registrar:
 
 | Record | Name | Value |
 |---|---|---|
-| CNAME | `www` | `eganfamily12-stack.github.io` |
+| CNAME | `www` | `YoakPropertiesAdmin.github.io` |
 | A | `@` | `185.199.108.153` |
 | A | `@` | `185.199.109.153` |
 | A | `@` | `185.199.110.153` |
@@ -335,5 +335,4 @@ right in a screenshot but were not a working website. For the record:
 | Office | 1361 Wooster Road W, Suite A, Barberton, OH 44203 |
 | Phone | 330-794-7156 |
 | Email | info@yoakproperties.com |
-| Resident portal | https://yoakproperties.managebuilding.com/Resident/public/home |
-"# yoakpropertiescom" 
+| Resident portal | AppFolio &mdash; URL still needed, see open item 1. The old Buildium portal is dead and must not be linked. |
