@@ -16,30 +16,29 @@ serve it: every file in the repository root is the deployed site exactly as it s
 
 ## Before this goes live — open items
 
-Two of these are blockers. The rest are improvements.
+None of these block the launch. The first two are settled decisions recorded so nobody reopens them; the rest are improvements.
 
-### 1. Resident portal link — BLOCKER, needs a URL
+### 1. No resident portal &mdash; settled, not outstanding
 
-`PORTAL_URL` in `tools/transform.py` is **deliberately empty**. While it is
-empty, the Tenant Portal button is omitted from the header, the mobile menu and
-the footer, and the build prints a reminder. The site currently contains **no
-reference to a resident portal anywhere** — that was an explicit decision, not
-an oversight.
+**Yoak has decided the public site does not advertise a resident portal.**
+`PORTAL_URL` in `tools/transform.py` is empty and stays empty. There is no
+Tenant Portal button in the header, mobile menu or footer, and no copy anywhere
+pointing at one.
 
-Do not paste the AppFolio *staff* login (`account.appfolio.com/realms/...`).
-That is the employee account picker, and the URL carries a session-specific
-`state` token. The resident portal is a per-company subdomain, typically
-`https://<company>.appfolio.com/connect`, found under **Settings → Online
-Portal** in AppFolio.
+This is enforced, not just configured: `strip_portal()` removes the surrounding
+text (the service cards on the home and about pages, the FAQ rent-payment line,
+a Terms section, a privacy contents entry), and the build **fails** if the word
+"portal" or the old Buildium hostname `yoakproperties.managebuilding.com`
+reappears in any page.
 
-The old Buildium portal (`yoakproperties.managebuilding.com`) must never be
-linked — Yoak has migrated off it. The build fails if that hostname reappears.
+Practical consequence: existing tenants have no self-serve route on the website.
+They pay rent and raise repairs by contacting the office, whose number and
+address are in the header, the footer and on the About page.
 
-When you are ready to advertise the portal: set `PORTAL_URL`, then restore the
-"Online Portal" service cards on the home and about pages and the rent-payment
-line on the FAQ page. All three live in `strip_portal()` and `tools/faq.py`.
+To reverse it, set `PORTAL_URL` and undo the removals in `strip_portal()` and
+`tools/faq.py`.
 
-### 2. Zillow destination — needs a URL
+### 2. Zillow destination
 
 `APPLY_URL` points at the leasing Linktree (`linktr.ee/derekanders`) because no
 Yoak Zillow *profile* URL was available. It is used by "See all current

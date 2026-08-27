@@ -51,14 +51,18 @@ EMAIL       = 'info@yoakproperties.com'
 YEAR        = '2026'
 LEGAL_DATE  = 'August 27, 2026'
 
-# Resident portal. Yoak has moved to AppFolio, so the old Buildium portal
-# (yoakproperties.managebuilding.com) must NOT be linked — it would send
-# tenants to a legacy system.
-# TODO(Joshua): paste the AppFolio *resident* portal URL here. It is a
-# per-company subdomain, typically https://<company>.appfolio.com/connect,
-# found under Settings -> Online Portal. Leave it empty and the Tenant Portal
-# button is omitted from the header, the mobile menu and the footer rather
-# than shipping a link that does not work.
+# Resident portal: DELIBERATELY NONE. Yoak has decided the public site does
+# not advertise a resident portal, so there is no Tenant Portal button and no
+# copy anywhere that points at one. strip_portal() removes the surrounding
+# text, and main() fails the build if the word "portal" or the old Buildium
+# hostname reappears in a page.
+#
+# Tenants who need to pay rent or raise a repair contact the office; the
+# number and address are in the header, footer and on the About page.
+#
+# If that decision is ever reversed, setting this to the AppFolio resident
+# portal URL restores the button, and the removals in strip_portal() and
+# tools/faq.py are what need undoing.
 PORTAL_URL  = ''
 
 # Applications go through Zillow: "All prospective tenants must apply through
@@ -849,8 +853,8 @@ def main():
               ' to Google instead. Add entries to show the widget.')
 
     if not PORTAL_URL:
-        print('  -- note: PORTAL_URL is empty, so the Tenant Portal button is omitted'
-              ' from the header, mobile menu and footer. Set it in transform.py.')
+        print('  -- no resident portal, by decision. The build rejects any page that'
+              ' mentions one.')
 
     leftovers = 0
     for _, outname, *_ in PAGES:
