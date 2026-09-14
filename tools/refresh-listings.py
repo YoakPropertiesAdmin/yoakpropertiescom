@@ -40,7 +40,14 @@ AGENTS = [
     ("Aaron",   "Akron & Surrounding Areas",  "330-552-8098", "1k3xO58UhmIvBxkbrtaew14jnU0ZudJc7UtB1aeNYg1g"),
 ]
 
-EXPORT = "https://docs.google.com/document/d/{doc}/export?format=txt"
+# MUST be format=md, not format=txt.
+#
+# The plain-text export silently discards every hyperlink and all table
+# structure: no pipes, no URLs, and a listing's address ends up on a different
+# line from its open house time. Nothing errors - you just get zero listings.
+# The markdown export keeps the table rows and the Zillow URLs this parser
+# depends on for addresses. Do not "simplify" this to txt.
+EXPORT = "https://docs.google.com/document/d/{doc}/export?format=md"
 
 # Cities Yoak operates in, longest first so "North Canton" wins over "Canton".
 CITIES = sorted([
@@ -61,6 +68,7 @@ WEEKDAYS = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", 
 # genuinely changed". A tripped guardrail fails the workflow; it does not
 # publish a half-empty site.
 MIN_RETAINED = 0.5      # fail if total listings fall by more than half
+MIN_TOTAL = 10          # absolute floor - Yoak has never had fewer than 20
 MAX_DAYS_AHEAD = 60     # a showing further out than this is a typo, not a plan
 MAX_DAYS_STALE = 120    # older than this and we assume the year rolled over
 
@@ -233,6 +241,20 @@ def clean(row):
 def parse_doc(text, agent, today):
     listings, seen = [], set()
 
+    # Fail loudly if the document does not look like the markdown table export.
+    # Without this, a wrong export format just returns an empty list and the
+    # failure looks like "no listings this week" instead of "wrong format".
+    rows = [l for l in text.splitlines() if l.lstrip().startswith("|")]
+    has_links = "zillow.com" in text.lower()
+    if len(rows) < 2 and has_links:
+        raise SystemExit(
+            f"GUARDRAIL: {agent}'s document has Zillow links but no markdown table "
+            f"rows. The export format is wrong - it must be format=md. format=txt "
+            f"strips the table and every hyperlink. Nothing was written.")
+    if not has_links:
+        flag(agent, "no Zillow links anywhere in this doc - every address in it is "
+                    "unverified, and the export format may be wrong.")
+
     for raw in text.splitlines():
         if not raw.lstrip().startswith("|"):
             continue
@@ -334,8 +356,18 @@ def main():
             raise SystemExit(f"GUARDRAIL: could not fetch {name}'s doc ({e}). "
                              f"Nothing was written.")
         listings = parse_doc(text, name, today)
+        # An agent doc that still contains Zillow links but yields no listings is
+        # a parser failure, not an empty week. Fail on it rather than quietly
+        # shrinking the site. A doc with genuinely nothing in it has no links
+        # either, and only gets a flag.
+        if not listings and "zillow.com" in text.lower():
+            raise SystemExit(
+                f"GUARDRAIL: parsed ZERO listings from {name}'s doc even though it "
+                f"still contains Zillow links. The document format has changed or "
+                f"the export format is wrong. Nothing was written.")
         if not listings:
-            flag(name, "parsed ZERO listings from this doc - the format may have changed.")
+            flag(name, "parsed ZERO listings from this doc - check whether it is empty "
+                       "on purpose.")
         listings.sort(key=lambda l: (l["openHouse"] is None or l["openHouse"][:10] < today.isoformat(),
                                      l["openHouse"] or "z"))
         agents_out.append({"name": name, "area": area, "phone": phone, "listings": listings})
@@ -345,6 +377,14 @@ def main():
                 if l["openHouse"] and l["openHouse"][:10] >= today.isoformat()]
     past = [(a["name"], l) for a in agents_out for l in a["listings"]
             if l["openHouse"] and l["openHouse"][:10] < today.isoformat()]
+
+    # Absolute floor first: this one does not depend on a previous file being
+    # present, so a fresh checkout cannot sail past it and publish an empty site.
+    if total < MIN_TOTAL:
+        raise SystemExit(
+            f"GUARDRAIL: only {total} listings parsed across all {len(AGENTS)} docs. "
+            f"Yoak has never had fewer than 20. This is a parsing failure, not a "
+            f"quiet week. Nothing was written.")
 
     if prev_total and total < prev_total * MIN_RETAINED:
         raise SystemExit(
