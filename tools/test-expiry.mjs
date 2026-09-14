@@ -11,7 +11,13 @@ const srv=http.createServer((q,r)=>{let p=q.url.split('?')[0]; if(p.endsWith('/'
  const f=path.join(ROOT,p); if(!fs.existsSync(f)){r.writeHead(404);return r.end('x');}
  r.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'}); r.end(fs.readFileSync(f));});
 await new Promise(r=>srv.listen(8896,r));
-const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+// Playwright resolves its own browser. Do NOT hardcode an executablePath here:
+// this line used to point at a chromium inside the container the site was
+// originally built in. That path exists on no other machine, so the verifier
+// failed on GitHub Actions and on Windows while looking like a Playwright
+// problem. Set CHROME_PATH only if you deliberately need a specific binary.
+const LAUNCH = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {};
+const b = await chromium.launch(LAUNCH);
 const problems=[];
 
 async function at(fakeISO, label) {

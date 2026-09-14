@@ -7,7 +7,13 @@ const ROOT = process.env.YOAK_OUT
   ? path.resolve(process.env.YOAK_OUT)
   : path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const FILE = 'file://' + path.join(ROOT, 'preview', 'yoak-preview.html');
-const b = await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+// Playwright resolves its own browser. Do NOT hardcode an executablePath here:
+// this line used to point at a chromium inside the container the site was
+// originally built in. That path exists on no other machine, so the verifier
+// failed on GitHub Actions and on Windows while looking like a Playwright
+// problem. Set CHROME_PATH only if you deliberately need a specific binary.
+const LAUNCH = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {};
+const b = await chromium.launch(LAUNCH);
 const ctx = await b.newContext({viewport:{width:1500,height:1000}});
 const pg = await ctx.newPage();
 const errs = [];

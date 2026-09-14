@@ -38,7 +38,13 @@ let problems = [];
 }
 
 const PAGES=['index.html','about.html','properties.html','faq.html','privacy.html','terms.html','404.html'];
-const browser = await chromium.launch({executablePath:'/opt/pw-browsers/chromium-1194/chrome-linux/chrome'});
+// Playwright resolves its own browser. Do NOT hardcode an executablePath here:
+// this line used to point at a chromium inside the container the site was
+// originally built in. That path exists on no other machine, so the verifier
+// failed on GitHub Actions and on Windows while looking like a Playwright
+// problem. Set CHROME_PATH only if you deliberately need a specific binary.
+const LAUNCH = process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {};
+const browser = await chromium.launch(LAUNCH);
 
 for (const view of [{name:'desktop',width:1440,height:1000},{name:'mobile',width:390,height:844}]) {
   const ctx = await browser.newContext({viewport:{width:view.width,height:view.height}, deviceScaleFactor:1});
