@@ -54,16 +54,45 @@ jobs:
         with:
           node-version: '20'
 
+      # Every command below runs from the REPOSITORY ROOT on purpose.
+      # The package.json scripts ("build", "css", "test") assume the repo root
+      # is the working directory, but `npm --prefix tools run <script>` would
+      # run them from inside tools/ and every relative path would resolve one
+      # level too deep. Rather than rely on that, the steps are spelled out and
+      # only the *binary* is resolved out of tools/node_modules.
+      - name: Install build dependencies
+        if: steps.changed.outputs.changed == 'true'
+        run: |
+          npm --prefix tools install
+          npx --prefix tools playwright install --with-deps chromium
+
       - name: Build the site
         if: steps.changed.outputs.changed == 'true'
         run: |
-          npm --prefix tools ci || npm --prefix tools install
-          npx --prefix tools playwright install --with-deps chromium
-          npm --prefix tools run build
+          python3 tools/transform.py
+          npx --prefix tools tailwindcss \
+            -c tools/tailwind.config.js \
+            -i tools/input.css \
+            -o assets/css/site.css --minify
+
+      # The stylesheet is the artifact that has failed silently here before: a
+      # bad content glob still exits zero and emits a valid file with no utility
+      # classes in it. Assert on the output, not the exit code.
+      - name: Sanity-check the stylesheet
+        if: steps.changed.outputs.changed == 'true'
+        run: |
+          SIZE=$(wc -c < assets/css/site.css)
+          echo "site.css is $SIZE bytes"
+          if [ "$SIZE" -lt 20000 ]; then
+            echo "::error::site.css is only $SIZE bytes - it has lost its utility classes."
+            exit 1
+          fi
 
       - name: Verify
         if: steps.changed.outputs.changed == 'true'
-        run: npm --prefix tools run test
+        run: |
+          node tools/verify.mjs
+          node tools/test-expiry.mjs
 
       - name: Open a pull request
         if: steps.changed.outputs.changed == 'true'
