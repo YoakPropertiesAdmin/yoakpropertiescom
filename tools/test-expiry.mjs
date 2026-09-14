@@ -65,9 +65,36 @@ async function at(fakeISO, label) {
   return {teaserCards, teaserVisible, datedRows, zillowRows, shownDates};
 }
 
-const now  = await at('2026-08-27T09:00:00', 'TODAY');
-const soon = await at('2026-09-05T09:00:00', 'AFTER most open houses');
-const far  = await at('2027-03-01T09:00:00', 'SIX MONTHS LATER');
+// The three clocks used to be hardcoded ('2026-08-27', '2026-09-05',
+// '2027-03-01'). That tied the test to one week's inventory: once the listings
+// moved past September the "9 days on" clock fell BEFORE every open house, so
+// nothing had expired and the test failed on correct output. Derive the clocks
+// from the data instead, so this keeps testing the behaviour rather than a
+// particular calendar.
+const data = JSON.parse(fs.readFileSync(path.join(ROOT, 'data', 'listings.json'), 'utf8'));
+const allListings = data.agents.flatMap(a => a.listings);
+const build = process.env.BUILD_TODAY || data.updated || new Date().toISOString().slice(0, 10);
+const futureDays = [...new Set(
+  allListings.map(l => l.openHouse).filter(Boolean)
+    .map(s => s.slice(0, 10)).filter(d => d >= build)
+)].sort();
+
+const addDays = (iso, n) => {
+  const d = new Date(iso + 'T12:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
+};
+
+if (futureDays.length === 0) {
+  console.log('No upcoming open houses in the data - nothing to expire. Skipping.');
+  await b.close(); srv.close();
+  process.exit(0);
+}
+
+const now  = await at(`${futureDays[0]}T00:01:00`, 'ON THE FIRST OPEN HOUSE DAY');
+// One day past the earliest open house day: everything on that day must be gone.
+const soon = await at(`${addDays(futureDays[0], 1)}T00:01:00`, 'THE DAY AFTER');
+const far  = await at(`${addDays(futureDays[futureDays.length - 1], 365)}T00:01:00`, 'A YEAR AFTER THE LAST');
 
 if (now.datedRows === 0) problems.push('today: expected some dated rows, got none');
 if (now.teaserVisible !== 'visible') problems.push('today: teaser section should be visible');
@@ -75,8 +102,16 @@ if (far.datedRows !== 0) problems.push(`far future: ${far.datedRows} dated rows 
 if (far.shownDates !== 0) problems.push(`far future: ${far.shownDates} "Open house" date paragraphs still shown`);
 if (far.teaserCards !== 0) problems.push(`far future: ${far.teaserCards} teaser cards still present`);
 if (far.teaserVisible !== 'hidden') problems.push('far future: teaser section should be hidden');
-if (far.zillowRows < 20) problems.push(`far future: only ${far.zillowRows} rows fell back to Zillow`);
-if (!(soon.datedRows < now.datedRows)) problems.push('9 days on: expected fewer dated rows');
+// Every listing, dated or not, should offer the Zillow link once all times pass.
+if (far.zillowRows < allListings.length)
+  problems.push(`far future: only ${far.zillowRows} of ${allListings.length} rows fell back to Zillow`);
+// Only provable when the upcoming showings span more than one day.
+if (futureDays.length > 1) {
+  if (!(soon.datedRows < now.datedRows))
+    problems.push(`day after ${futureDays[0]}: expected fewer than ${now.datedRows} dated rows, got ${soon.datedRows}`);
+} else {
+  console.log(`(only one day of upcoming open houses (${futureDays[0]}) - skipping the partial-expiry check)`);
+}
 
 await b.close(); srv.close();
 console.log(problems.length ? '\nPROBLEMS:\n'+problems.join('\n') : '\nEXPIRY LOGIC OK');
