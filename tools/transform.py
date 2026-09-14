@@ -21,6 +21,7 @@ What it fixes, and why:
   * Properties page advertised open houses that happened in June and July.
 """
 
+import datetime as _dt
 import json
 import os
 import re
@@ -76,8 +77,18 @@ APPLY_URL   = 'https://linktr.ee/derekanders'
 ZILLOW_ADDR = 'https://www.zillow.com/homes/{slug}_rb/'
 
 APP_FEE     = '$35 per applicant'
-BUILD_TODAY = '2026-08-27'
-BUILD_DATE_TEXT = '27 August 2026'
+# The build date drives two things: which open houses count as still upcoming,
+# and the "times were accurate on ..." line on the properties page. It used to
+# be the hardcoded string '2026-08-27'. That silently froze the site's idea of
+# "today" at the first build, so every rebuild afterwards treated long-past open
+# houses as upcoming and published them - the home page teasers picked the three
+# OLDEST showings in the file. Derive it instead. BUILD_TODAY=YYYY-MM-DD in the
+# environment overrides, which is what tools/test-expiry.mjs needs.
+_MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+           'August', 'September', 'October', 'November', 'December']
+BUILD_TODAY = os.environ.get('BUILD_TODAY') or _dt.date.today().isoformat()
+_bd = _dt.date.fromisoformat(BUILD_TODAY)
+BUILD_DATE_TEXT = f'{_bd.day} {_MONTHS[_bd.month - 1]} {_bd.year}'
 
 # Google Maps search that resolves to the office listing. Swap for the
 # place-ID review link if you want the "write a review" dialog to open.

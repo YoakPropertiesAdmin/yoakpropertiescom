@@ -10,9 +10,11 @@ Two deliberate departures from the source, both flagged in the README:
     tenants to a decommissioned system. Because the resident portal is not being
     advertised on the public site yet, the line now states only when rent is due
     and says the leasing agent sets up payment at move-in.
-  * The source names the payee as "Yoak Properties and Construction LLC", which
-    differs from the "Co." used in the site branding. The payee line keeps the
-    source's wording verbatim, because that is what a cashier's check must say.
+  * Yoak's own FAQ document names the payee as "Yoak Properties and Construction
+    LLC". Joshua confirmed on 14 Sep 2026 that "Co." is correct, so the payee
+    line reads "Co." here and no longer matches the source document. Do not
+    "restore" it to LLC from the source without asking Steve or Kipp - a
+    cashier's check made out to the wrong entity does not clear.
 """
 
 SECTIONS = [
@@ -107,7 +109,7 @@ SECTIONS = [
         'checks': [
             ('Initial deposits and payments',
              'Cash, cashier&#8217;s check or money order, made payable to '
-             '<strong>Yoak Properties and Construction LLC</strong>.'),
+             '<strong>Yoak Properties and Construction Co</strong>.'),
             ('Monthly rent, once you have moved in',
              'Due on or before the first of the month. Your leasing agent will set up '
              'your payment method with you at move-in.'),
